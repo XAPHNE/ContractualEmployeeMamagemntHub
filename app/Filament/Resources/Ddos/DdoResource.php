@@ -28,9 +28,18 @@ class DdoResource extends Resource
 {
     protected static ?string $model = Ddo::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static ?string $navigationLabel = 'Employees / DDOs';
+
+    protected static \UnitEnum | string | null $navigationGroup = 'Management';
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedIdentification;
 
     protected static ?string $recordTitleAttribute = 'ddoName';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return (string) static::getModel()::count();
+    }
 
     public static function form(Schema $schema): Schema
     {

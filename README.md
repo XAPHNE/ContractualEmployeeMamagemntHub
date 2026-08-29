@@ -1,58 +1,151 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🏢 CEMH — Contractual Employee Management Hub
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel)](https://laravel.com)
+[![Filament](https://img.shields.io/badge/Filament-5.x-F59E0B?style=for-the-badge&logo=filament)](https://filamentphp.com)
+[![PHP](https://img.shields.io/badge/PHP-8.3%2B-777BB4?style=for-the-badge&logo=php)](https://php.net)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-## About Laravel
+**CEMH (Contractual Employee Management Hub)** is an enterprise administrative portal designed for tracking, managing, and auditing contractual employee records, Drawing & Disbursing Officers (DDOs), and organization-wide security governance.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## ✨ Key Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 📋 1. Employee & DDO Management
+- **8-Digit ID Governance**: Masked input (`99999999`) and strict validation rules requiring exactly 8 digits for Employee IDs.
+- **Comprehensive Profiles**: PAN, Department, Directorate, Post Name, Office Address, Mobile Number, Email, Treasury Code, and District.
+- **Full Lifecycle Auditing**: Integrated Eloquent observers tracking `created_by`, `updated_by`, and `deleted_by` across all records.
+- **Soft Deletion & Recovery**: Trash filtering, record restoration, and permanent force-delete protection.
 
-## Learning Laravel
+### 🛡️ 2. Advanced Security & Password Governance
+- **Email Multi-Factor Authentication (MFA)**: Built-in 2FA OTP verification delivered directly to the user's email with configurable code expiry.
+- **Password History Restrictions**: Prevents credential reuse by checking new passwords against historical records via custom validation rules.
+- **Configurable Password Complexity**: Enforce minimum/maximum length, uppercase, lowercase, numeric digits, and special character policies.
+- **Lockout & Rate Limiting**: Protection against brute-force login attempts and 2FA spamming with automated lockout durations.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 🔑 3. Role-Based Access Control (RBAC)
+- **Filament Shield Integration**: Fine-grained role and permission management powered by Spatie Permission.
+- **Granular Model Policies**: Automatically generated authorization policies covering all resources and pages.
+- **Super Admin Management**: Dedicated Artisan CLI tools for granting super administrator privileges.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 📊 4. Centralized Audit Hub
+- **Authentication Logs**: Detailed records of successful and failed logins, client IP addresses, browser/user agent details, login timestamps, and session durations.
+- **Activity Logs**: Automated tracking of model modifications, creation events, deletions, and state diffs.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### ⚙️ 5. System Settings Dashboard
+- **Dynamic Configuration Hub**: Web-based administration for:
+  - Application identification and access policies.
+  - Password strength and expiry limits.
+  - Security thresholds (max login attempts, lockout duration, MFA resend limits).
 
-## Agentic Development
+### 📈 6. Interactive Dashboard & Analytics
+- **Live Statistics**: Real-time counts for active employees/DDOs, covered departments, mapped districts, and portal users.
+- **Department Distribution Chart**: Visual bar chart breakdown of personnel distribution across departments.
+- **Recent Registrations**: Quick-reference table highlighting the latest employee onboarding records.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+---
 
-```bash
-composer require laravel/boost --dev
+## 🛠️ Technology Stack
 
-php artisan boost:install
+- **Framework**: [Laravel 12](https://laravel.com)
+- **Admin Panel**: [Filament v5](https://filamentphp.com)
+- **Permissions**: [Filament Shield](https://github.com/bezhanSalleh/filament-shield) / [Spatie Permission](https://github.com/spatie/laravel-permission)
+- **Database**: SQLite / MySQL / PostgreSQL
+- **Frontend / Styling**: Tailwind CSS, Alpine.js, Blade Icons
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+Ensure the following are installed on your environment:
+- **PHP** `>= 8.3` (with `pdo`, `mbstring`, `openssl`, `curl` extensions)
+- **Composer** `>= 2.7`
+- **Node.js & NPM** `>= 20.x`
+
+### Installation
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/XAPHNE/ContractualEmployeeMamagemntHub.git cemh
+   cd cemh
+   ```
+
+2. **Install PHP and Node dependencies**:
+   ```bash
+   composer install
+   npm install
+   npm run build
+   ```
+
+3. **Configure Environment**:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+4. **Run Database Migrations & Seed Default Settings**:
+   ```bash
+   php artisan migrate
+   php artisan db:seed --class=SettingSeeder
+   ```
+
+5. **Generate Shield Permissions & Setup Super Admin**:
+   ```bash
+   php artisan shield:generate --all
+   php artisan shield:super-admin
+   ```
+
+6. **Serve the Application**:
+   ```bash
+   php artisan serve
+   ```
+
+   Access the admin portal at: **`http://localhost:8000/admin`**
+
+---
+
+## 📂 Project Structure
+
+```text
+app/
+├── Filament/
+│   ├── Pages/
+│   │   ├── Auth/
+│   │   │   └── EditProfile.php          # Custom profile management
+│   │   └── SystemSettings.php           # Security & application settings
+│   ├── Resources/
+│   │   ├── ActivityLogs/                # Model activity audit resource
+│   │   ├── AuthenticationLogs/          # Authentication tracking resource
+│   │   ├── Ddos/                        # Contractual Employee / DDO resource
+│   │   └── Users/                       # Portal user management resource
+│   └── Widgets/
+│       ├── DdoDepartmentChartWidget.php # Department breakdown chart
+│       ├── DdoStatsOverviewWidget.php   # System-wide metrics & counters
+│       └── LatestDdosWidget.php         # Recent employee registrations
+├── Listeners/
+│   └── LogAuthenticationEvent.php       # Login/logout audit listener
+├── Models/
+│   ├── ActivityLog.php
+│   ├── AuthenticationLog.php
+│   ├── Ddo.php
+│   ├── PasswordHistory.php
+│   ├── Setting.php
+│   └── User.php
+├── Observers/
+│   ├── DdoObserver.php                  # Audit stamps & activity logging
+│   └── UserObserver.php                 # Password history & user audit
+├── Providers/
+│   └── Filament/
+│       └── AdminPanelProvider.php       # Filament panel configuration
+└── Rules/
+    └── PasswordHistoryRule.php          # Password rotation rule
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+---
 
-## Contributing
+## 🔒 Security & Contribution
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- **Security Reporting**: If you discover any security vulnerabilities, please open a confidential advisory or contact the project maintainers directly.
+- **License**: This software is open-sourced under the [MIT License](LICENSE).

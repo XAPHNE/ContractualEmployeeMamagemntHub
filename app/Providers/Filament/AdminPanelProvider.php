@@ -36,6 +36,15 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->profile(EditProfile::class, isSimple: false)
+            ->plugins([
+                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
+            ])
+            ->navigationGroups([
+                'Management',
+                'Roles & Permissions',
+                'Audit Hub',
+                'Settings',
+            ])
             ->pages([
                 Dashboard::class,
             ])

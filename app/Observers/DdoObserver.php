@@ -2,14 +2,12 @@
 
 namespace App\Observers;
 
+use App\Models\ActivityLog;
 use App\Models\Ddo;
 use Illuminate\Support\Facades\Auth;
 
 class DdoObserver
 {
-    /**
-     * Handle the Ddo "creating" event.
-     */
     public function creating(Ddo $ddo): void
     {
         if (Auth::check()) {
@@ -18,9 +16,11 @@ class DdoObserver
         }
     }
 
-    /**
-     * Handle the Ddo "updating" event.
-     */
+    public function created(Ddo $ddo): void
+    {
+        ActivityLog::log("Created employee/DDO '{$ddo->ddoName}' ({$ddo->ddoId})", $ddo);
+    }
+
     public function updating(Ddo $ddo): void
     {
         if (Auth::check()) {
@@ -28,22 +28,29 @@ class DdoObserver
         }
     }
 
-    /**
-     * Handle the Ddo "deleting" event.
-     */
+    public function updated(Ddo $ddo): void
+    {
+        $dirty = $ddo->getDirty();
+        unset($dirty['updated_at']);
+
+        if (! empty($dirty)) {
+            ActivityLog::log("Updated employee/DDO '{$ddo->ddoName}' ({$ddo->ddoId})", $ddo, ['changes' => $dirty]);
+        }
+    }
+
     public function deleting(Ddo $ddo): void
     {
         if (Auth::check() && ! $ddo->isForceDeleting()) {
             $ddo->deleted_by = Auth::id();
             $ddo->saveQuietly();
         }
+
+        ActivityLog::log("Deleted employee/DDO '{$ddo->ddoName}' ({$ddo->ddoId})", $ddo);
     }
 
-    /**
-     * Handle the Ddo "restoring" event.
-     */
     public function restoring(Ddo $ddo): void
     {
         $ddo->deleted_by = null;
+        ActivityLog::log("Restored employee/DDO '{$ddo->ddoName}' ({$ddo->ddoId})", $ddo);
     }
 }

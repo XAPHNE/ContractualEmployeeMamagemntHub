@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 #[ObservedBy([UserObserver::class])]
 #[Fillable(['name', 'email', 'password', 'created_by', 'updated_by', 'deleted_by', 'has_email_authentication'])]
@@ -24,7 +25,7 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable implements FilamentUser, HasEmailAuthentication, MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, InteractsWithEmailAuthentication, Notifiable, SoftDeletes;
+    use HasFactory, HasRoles, InteractsWithEmailAuthentication, Notifiable, SoftDeletes;
 
     /**
      * Get the attributes that should be cast.
