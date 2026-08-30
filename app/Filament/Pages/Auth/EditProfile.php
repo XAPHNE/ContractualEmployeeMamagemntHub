@@ -90,4 +90,25 @@ class EditProfile extends BaseEditProfile
             ->visible(fn (Get $get): bool => filled($get('password')))
             ->dehydrated(false);
     }
+
+    public function getMultiFactorAuthenticationContentComponent(): ?Component
+    {
+        $allowDisabling = (bool) \App\Models\Setting::get('allow_disabling_2fa', false);
+        $user = Filament::auth()->user();
+
+        // If disabling is restricted and user already has 2FA enabled
+        if (! $allowDisabling && $user?->has_email_authentication) {
+            return \Filament\Schemas\Components\Section::make()
+                ->label(__('filament-panels::auth/pages/edit-profile.multi_factor_authentication.label'))
+                ->compact()
+                ->secondary()
+                ->schema([
+                    \Filament\Forms\Components\Placeholder::make('mfa_status')
+                        ->label('Two-Factor Authentication (Email MFA)')
+                        ->content('Enabled & Active. (Disabling 2FA is restricted by system security policy).'),
+                ]);
+        }
+
+        return parent::getMultiFactorAuthenticationContentComponent();
+    }
 }

@@ -48,6 +48,7 @@ class SystemSettings extends Page
             'password_expiry_days' => (int) Setting::get('password_expiry_days', 90),
 
             'force_2fa' => (bool) Setting::get('force_2fa', true),
+            'allow_disabling_2fa' => (bool) Setting::get('allow_disabling_2fa', false),
             'max_login_attempts' => (int) Setting::get('max_login_attempts', 5),
             'login_lockout_hours' => (int) Setting::get('login_lockout_hours', 1),
             'max_2fa_resend_attempts' => (int) Setting::get('max_2fa_resend_attempts', 3),
@@ -144,6 +145,10 @@ class SystemSettings extends Page
                                             ->label('Mandatory Multi-Factor Authentication')
                                             ->helperText('Enforce 2FA OTP codes across all users.')
                                             ->default(true),
+                                        Toggle::make('allow_disabling_2fa')
+                                            ->label('Allow Disabling 2FA in Profile Section')
+                                            ->helperText('Allow or disallow individual users from turning off Email 2FA (MFA) from their personal profile.')
+                                            ->default(false),
                                         TextInput::make('max_login_attempts')
                                             ->label('Max Consecutive Failed Login Attempts')
                                             ->numeric()

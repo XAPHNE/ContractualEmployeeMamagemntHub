@@ -23,6 +23,7 @@ class SettingSeeder extends Seeder
             'password_history_limit' => 3,
             'password_expiry_days' => 90,
             'force_2fa' => true,
+            'allow_disabling_2fa' => false,
             'max_login_attempts' => 5,
             'login_lockout_hours' => 1,
             'max_2fa_resend_attempts' => 3,
