@@ -80,6 +80,8 @@ class ActivityLogResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    \Filament\Actions\ExportBulkAction::make()
+                        ->exporter(\App\Filament\Exports\ActivityLogExporter::class),
                     DeleteBulkAction::make(),
                 ]),
             ]);

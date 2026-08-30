@@ -108,6 +108,8 @@ class AuthenticationLogResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    \Filament\Actions\ExportBulkAction::make()
+                        ->exporter(\App\Filament\Exports\AuthenticationLogExporter::class),
                     DeleteBulkAction::make(),
                 ]),
             ]);
