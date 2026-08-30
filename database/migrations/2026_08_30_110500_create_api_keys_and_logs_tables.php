@@ -6,8 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
+        // 1. API Keys Table
         Schema::create('api_keys', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -22,10 +26,29 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
+        // 2. API Access Logs Table
+        Schema::create('api_logs', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('api_key_id')->nullable()->constrained('api_keys')->nullOnDelete();
+            $table->string('client_name')->nullable();
+            $table->string('ip_address', 45);
+            $table->string('method', 10);
+            $table->string('endpoint');
+            $table->json('request_params')->nullable();
+            $table->unsignedSmallInteger('status_code');
+            $table->unsignedInteger('records_count')->default(0);
+            $table->float('duration_ms', 8, 2)->nullable();
+            $table->timestamps();
+        });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
+        Schema::dropIfExists('api_logs');
         Schema::dropIfExists('api_keys');
     }
 };
