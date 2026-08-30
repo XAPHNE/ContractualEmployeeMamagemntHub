@@ -43,6 +43,15 @@
 - **Department Distribution Chart**: Visual bar chart breakdown of personnel distribution across departments.
 - **Recent Registrations**: Quick-reference table highlighting the latest employee onboarding records.
 
+### 🌐 7. Enterprise SAP ERP Integration & API Manager
+- **Secured API Authentication**: Token authentication via `X-API-KEY` or `Authorization: Bearer <token>`.
+- **IP Whitelisting**: Restrict API token access strictly to authorized SAP application server IP addresses.
+- **Client Rate Limiting**: Per-client configurable request throttles preventing server overloads.
+- **Delta Sync & Incremental Updates**: Timestamp query filtering (`?updated_since=...` / `?since=...`) for SAP batch processing.
+- **Enterprise JSON Envelope**: Standardized status, UTC timestamp, total count, pagination metadata, and data arrays.
+- **API Access Logging**: Full request latency tracking, client IP, method, parameters, response codes, and record counts.
+- **API Manager Resource**: Filament management interface to create, activate/deactivate, rotate, and manage client API credentials.
+
 ---
 
 ## 🛠️ Technology Stack

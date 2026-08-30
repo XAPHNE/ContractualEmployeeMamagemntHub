@@ -41,6 +41,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 'Management',
+                'API Manager',
                 'Roles & Permissions',
                 'Audit Hub',
                 'Settings',
