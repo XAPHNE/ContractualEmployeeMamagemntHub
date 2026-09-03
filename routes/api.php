@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\DdoApiController;
 use App\Http\Controllers\Api\EmployeeApiController;
+use App\Http\Controllers\Api\MmlsayApiController;
 use App\Http\Middleware\AuthenticateApiKey;
 use Illuminate\Support\Facades\Route;
 
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\Route;
 | API Routes
 |--------------------------------------------------------------------------
 |
-| Secured endpoints for external enterprise integrations (e.g. Govt of Assam / SAP ERP).
+| Secured endpoints for external enterprise integrations (e.g. Govt of Assam / MMLSAY / SAP ERP).
 |
 */
 
@@ -24,4 +25,6 @@ Route::middleware([AuthenticateApiKey::class])->group(function () {
         Route::get('/', [EmployeeApiController::class, 'index'])->name('index');
         Route::get('/{id}', [EmployeeApiController::class, 'show'])->name('show');
     });
+
+    Route::get('/mmlsay/employee', [MmlsayApiController::class, 'show'])->name('api.mmlsay.show');
 });

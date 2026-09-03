@@ -37,6 +37,7 @@ class Employee extends Model
         'permanent_address',
         'pincode',
         'district',
+        'ddo_id',
         'active',
         'ac_number',
         'ac_type',
@@ -55,6 +56,16 @@ class Employee extends Model
             'date_of_joining' => 'date',
             'dor' => 'date',
         ];
+    }
+
+    public function ddo()
+    {
+        return $this->belongsTo(Ddo::class, 'ddo_id');
+    }
+
+    public function contributions()
+    {
+        return $this->hasMany(EmployeeContribution::class, 'employee_id');
     }
 
     public function createdBy()

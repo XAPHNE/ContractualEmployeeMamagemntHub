@@ -36,6 +36,7 @@ return new class extends Migration
             $table->string('permanent_address');
             $table->string('pincode');
             $table->string('district');
+            $table->foreignId('ddo_id')->nullable()->constrained('ddos')->onUpdate('cascade')->onDelete('restrict');
             $table->string('active');
             $table->string('ac_number');
             $table->string('ac_type');

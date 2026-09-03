@@ -14,6 +14,7 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -86,6 +87,12 @@ class EmployeeResource extends Resource
                     ->required(),
                 TextInput::make('district')
                     ->required(),
+                Select::make('ddo_id')
+                    ->label('Assigned DDO')
+                    ->relationship('ddo', 'ddoName')
+                    ->searchable()
+                    ->preload()
+                    ->nullable(),
                 TextInput::make('active')
                     ->required(),
                 TextInput::make('ac_number')
@@ -157,6 +164,12 @@ class EmployeeResource extends Resource
                     ->searchable(),
                 TextColumn::make('district')
                     ->searchable(),
+                TextColumn::make('ddo.ddoName')
+                    ->label('Assigned DDO')
+                    ->placeholder('None')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('active')
                     ->searchable(),
                 TextColumn::make('ac_number')

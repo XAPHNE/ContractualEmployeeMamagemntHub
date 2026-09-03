@@ -22,7 +22,10 @@ class AuthenticateApiKey
         // 1. Extract API token
         $rawKey = $request->header('X-API-KEY')
             ?? $request->bearerToken()
-            ?? $request->query('api_key');
+            ?? $request->query('Key')
+            ?? $request->query('key')
+            ?? $request->input('Key')
+            ?? $request->input('api_key');
 
         if (! $rawKey) {
             $this->logRequest(null, $request, 401, 0, $startTime);
@@ -59,7 +62,7 @@ class AuthenticateApiKey
         }
 
         // 4. Rate Limiting per API Key
-        $rateLimitKey = 'api_key:' . $apiKey->id;
+        $rateLimitKey = 'api_key:'.$apiKey->id;
         $maxAttempts = $apiKey->rate_limit_per_minute ?: 60;
 
         if (RateLimiter::tooManyAttempts($rateLimitKey, $maxAttempts)) {
@@ -76,7 +79,7 @@ class AuthenticateApiKey
         RateLimiter::hit($rateLimitKey, 60);
 
         // 5. Proceed to endpoint
-        /** @var \Symfony\Component\HttpFoundation\Response $response */
+        /** @var Response $response */
         $response = $next($request);
 
         // Calculate records count if JSON response
