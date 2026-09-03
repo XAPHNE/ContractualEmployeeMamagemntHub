@@ -30,9 +30,9 @@ class ApiKeyResource extends Resource
 
     protected static ?string $navigationLabel = 'API Credentials';
 
-    protected static UnitEnum | string | null $navigationGroup = 'API Manager';
+    protected static UnitEnum|string|null $navigationGroup = 'API Manager';
 
-    protected static string | BackedEnum | null $navigationIcon = Heroicon::OutlinedKey;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedKey;
 
     protected static ?int $navigationSort = 1;
 
@@ -47,11 +47,11 @@ class ApiKeyResource extends Resource
             ->components([
                 Section::make('Client & Authentication')
                     ->columnSpanFull()
-                    ->description('Provision and govern secure integration tokens for external services (e.g. SAP ERP).')
+                    ->description('Provision and govern secure integration tokens for external services.')
                     ->schema([
                         TextInput::make('name')
                             ->label('Client / Application Name')
-                            ->placeholder('e.g. SAP ERP Payment Processing')
+                            ->placeholder('e.g. E-Governance')
                             ->required()
                             ->maxLength(255)
                             ->columnSpanFull(),
@@ -61,7 +61,7 @@ class ApiKeyResource extends Resource
                             ->required()
                             ->readOnly()
                             ->copyable()
-                            ->helperText('Provide this token to the SAP ERP team for authentication via X-API-KEY header or Bearer Token.')
+                            ->helperText('Provide this token to the relevant team for authentication via X-API-KEY header or Bearer Token.')
                             ->columnSpanFull(),
                         Textarea::make('allowed_ips')
                             ->label('Whitelisted IP Addresses')
@@ -101,7 +101,7 @@ class ApiKeyResource extends Resource
                     ->label('API Key')
                     ->copyable()
                     ->searchable()
-                    ->formatStateUsing(fn (string $state): string => substr($state, 0, 14) . '••••••••••••••••' . substr($state, -4)),
+                    ->formatStateUsing(fn (string $state): string => substr($state, 0, 14).'••••••••••••••••'.substr($state, -4)),
                 IconColumn::make('is_active')
                     ->label('Status')
                     ->boolean()

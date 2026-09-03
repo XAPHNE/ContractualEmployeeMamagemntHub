@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Ddos;
 
+use App\Filament\Exports\DdoExporter;
 use App\Filament\Resources\Ddos\Pages\ManageDdos;
 use App\Models\Ddo;
 use BackedEnum;
@@ -9,6 +10,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ExportBulkAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
@@ -28,9 +30,9 @@ class DdoResource extends Resource
 {
     protected static ?string $model = Ddo::class;
 
-    protected static ?string $navigationLabel = 'Employees / DDOs';
+    protected static ?string $navigationLabel = 'DDOs';
 
-    protected static \UnitEnum | string | null $navigationGroup = 'Management';
+    protected static \UnitEnum|string|null $navigationGroup = 'Management';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedIdentification;
 
@@ -46,7 +48,7 @@ class DdoResource extends Resource
         return $schema
             ->components([
                 TextInput::make('ddoId')
-                    ->label('Employee ID')
+                    ->label('DDO ID')
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->mask('99999999')
@@ -57,7 +59,7 @@ class DdoResource extends Resource
                         'min' => 'The Employee ID must be at least 8 digits.',
                     ]),
                 TextInput::make('ddoName')
-                    ->label('Employee Name')
+                    ->label('DDO Name')
                     ->required()
                     ->maxLength(255),
                 TextInput::make('pan')
@@ -115,11 +117,11 @@ class DdoResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('ddoId')
-                    ->label('Employee ID')
+                    ->label('DDO ID')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('ddoName')
-                    ->label('Employee Name')
+                    ->label('DDO Name')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('pan')
@@ -206,8 +208,8 @@ class DdoResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    \Filament\Actions\ExportBulkAction::make()
-                        ->exporter(\App\Filament\Exports\DdoExporter::class),
+                    ExportBulkAction::make()
+                        ->exporter(DdoExporter::class),
                     DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
