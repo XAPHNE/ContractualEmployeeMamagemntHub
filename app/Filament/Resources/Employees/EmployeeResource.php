@@ -17,6 +17,8 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -35,20 +37,42 @@ class EmployeeResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'Employee';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return (string) static::getModel()::count();
+    }
+
     public static function form(Schema $schema): Schema
     {
+        $updateFullName = function (Get $get, Set $set): void {
+            $parts = array_filter([$get('first_Name'), $get('middle_Name'), $get('last_Name')], fn ($part) => filled($part));
+            $set('full_Name', implode(' ', $parts));
+        };
+
         return $schema
             ->components([
                 TextInput::make('emp_id')
                     ->required(),
                 TextInput::make('full_Name')
+                    ->label('Full Name')
+                    ->disabled()
+                    ->dehydrated()
                     ->required(),
                 TextInput::make('first_Name')
-                    ->required(),
+                    ->label('First Name')
+                    ->required()
+                    ->live(onBlur: true)
+                    ->afterStateUpdated($updateFullName),
                 TextInput::make('middle_Name')
-                    ->required(),
+                    ->label('Middle Name')
+                    ->nullable()
+                    ->live(onBlur: true)
+                    ->afterStateUpdated($updateFullName),
                 TextInput::make('last_Name')
-                    ->required(),
+                    ->label('Last Name')
+                    ->required()
+                    ->live(onBlur: true)
+                    ->afterStateUpdated($updateFullName),
                 TextInput::make('type')
                     ->required(),
                 TextInput::make('mobile')
@@ -57,9 +81,14 @@ class EmployeeResource extends Resource
                     ->required(),
                 TextInput::make('pan')
                     ->required(),
-                TextInput::make('gender')
+                Select::make('gender')
+                    ->options([
+                        'Male' => 'Male',
+                        'Female' => 'Female',
+                        'Other' => 'Other',
+                    ])
                     ->required(),
-                TextInput::make('dob')
+                DatePicker::make('dob')
                     ->required(),
                 TextInput::make('designation')
                     ->required(),
@@ -93,7 +122,11 @@ class EmployeeResource extends Resource
                     ->searchable()
                     ->preload()
                     ->nullable(),
-                TextInput::make('active')
+                Select::make('active')
+                    ->options([
+                        'true' => 'Active',
+                        'false' => 'Inactive',
+                    ])
                     ->required(),
                 TextInput::make('ac_number')
                     ->required(),

@@ -10,6 +10,9 @@ class EmployeeObserver
 {
     public function creating(Employee $employee): void
     {
+        $parts = array_filter([$employee->first_Name, $employee->middle_Name, $employee->last_Name], fn ($part) => filled($part));
+        $employee->full_Name = implode(' ', $parts);
+
         if (Auth::check()) {
             $employee->created_by ??= Auth::id();
             $employee->updated_by ??= Auth::id();
@@ -23,6 +26,9 @@ class EmployeeObserver
 
     public function updating(Employee $employee): void
     {
+        $parts = array_filter([$employee->first_Name, $employee->middle_Name, $employee->last_Name], fn ($part) => filled($part));
+        $employee->full_Name = implode(' ', $parts);
+
         if (Auth::check()) {
             $employee->updated_by = Auth::id();
         }
