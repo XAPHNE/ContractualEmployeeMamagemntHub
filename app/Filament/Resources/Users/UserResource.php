@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users;
 
+use App\Filament\Exports\UserExporter;
 use App\Filament\Resources\Users\Pages\ManageUsers;
 use App\Models\Setting;
 use App\Models\User;
@@ -11,11 +12,12 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ExportBulkAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
-use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
@@ -37,9 +39,9 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static UnitEnum | string | null $navigationGroup = 'Management';
+    protected static UnitEnum|string|null $navigationGroup = 'Management';
 
-    protected static string | BackedEnum | null $navigationIcon = Heroicon::OutlinedUsers;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -90,7 +92,7 @@ class UserResource extends Resource
                             ->icon(Heroicon::OutlinedShieldCheck)
                             ->columns(2)
                             ->schema([
-                                \Filament\Forms\Components\Select::make('roles')
+                                Select::make('roles')
                                     ->label('Assigned Roles')
                                     ->relationship('roles', 'name')
                                     ->multiple()
@@ -101,9 +103,6 @@ class UserResource extends Resource
                                     ->label('Two-Factor Authentication (Email MFA)')
                                     ->helperText('Requires 2FA OTP code on login.')
                                     ->default(false),
-                                DateTimePicker::make('email_verified_at')
-                                    ->label('Email Verified At')
-                                    ->helperText('Leave empty for unverified accounts.'),
                             ]),
                     ]),
             ]);
@@ -141,6 +140,19 @@ class UserResource extends Resource
                     ->placeholder('Unverified')
                     ->sortable()
                     ->toggleable(),
+                TextColumn::make('creator.name')
+                    ->label('Created By')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('updater.name')
+                    ->label('Updated By')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('deleter.name')
+                    ->label('Deleted By')
+                    ->placeholder('N/A')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Created At')
                     ->dateTime()
@@ -163,8 +175,8 @@ class UserResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    \Filament\Actions\ExportBulkAction::make()
-                        ->exporter(\App\Filament\Exports\UserExporter::class),
+                    ExportBulkAction::make()
+                        ->exporter(UserExporter::class),
                     DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),

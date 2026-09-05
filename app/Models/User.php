@@ -46,37 +46,32 @@ class User extends Authenticatable implements FilamentUser, HasEmailAuthenticati
         return true;
     }
 
-    public function ddos()
+    public function createdUsers()
     {
-        return $this->hasMany(Ddo::class);
+        return $this->hasMany(User::class, 'created_by');
     }
 
-    public function createdDdos()
+    public function updatedUsers()
     {
-        return $this->hasMany(Ddo::class, 'created_by');
+        return $this->hasMany(User::class, 'updated_by');
     }
 
-    public function updatedDdos()
+    public function deletedUsers()
     {
-        return $this->hasMany(Ddo::class, 'updated_by');
+        return $this->hasMany(User::class, 'deleted_by');
     }
 
-    public function deletedDdos()
-    {
-        return $this->hasMany(Ddo::class, 'deleted_by');
-    }
-
-    public function createdBy()
+    public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function updatedBy()
+    public function updater()
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
 
-    public function deletedBy()
+    public function deleter()
     {
         return $this->belongsTo(User::class, 'deleted_by');
     }

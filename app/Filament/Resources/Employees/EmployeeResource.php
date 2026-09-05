@@ -73,13 +73,23 @@ class EmployeeResource extends Resource
                     ->required()
                     ->live(onBlur: true)
                     ->afterStateUpdated($updateFullName),
-                TextInput::make('type')
+                Select::make('type')
+                    ->options([
+                        'Fixed Pay' => 'Fixed Pay',
+                    ])
                     ->required(),
                 TextInput::make('mobile')
+                    ->mask('9999999999')
+                    ->length(10)
+                    ->rules(['digits:10'])
                     ->required(),
-                TextInput::make('employee_code')
+                Select::make('employee_code')
+                    ->options([
+                        'Fixed_Pay' => 'Fixed_Pay',
+                    ])
                     ->required(),
                 TextInput::make('pan')
+                    ->maxLength(10)
                     ->required(),
                 Select::make('gender')
                     ->options([
@@ -90,24 +100,55 @@ class EmployeeResource extends Resource
                     ->required(),
                 DatePicker::make('dob')
                     ->required(),
-                TextInput::make('designation')
+                Select::make('designation')
+                    ->options([
+                        'Asst.' => 'Assistant',
+                        'Asst.Teacher' => 'Assistant Teacher',
+                        'Aya' => 'Aya',
+                        'Chowkidar' => 'Chowkidar',
+                        'Cleaner' => 'Cleaner',
+                        'CLEANER(Engaged as Pump Operator)' => 'CLEANER (Engaged as Pump Operator)',
+                        'Computer Typist' => 'Computer Typist',
+                        'Cook' => 'Cook',
+                        'Driver' => 'Driver',
+                        'Ex. Serviceman' => 'Ex. Serviceman',
+                        'Fix Pay Security' => 'Fix Pay Security',
+                        'Gardener' => 'Gardener',
+                        'Helper' => 'Helper',
+                        'Helper to Mali' => 'Helper to Mali',
+                        'LDA Cum Typist' => 'LDA Cum Typist',
+                        'Mali' => 'Mali',
+                        'OCFA' => 'Office Cum Field Assistant',
+                        'Office Cleaner' => 'Office Cleaner',
+                        'Office Peon' => 'Office Peon',
+                        'Peon' => 'Peon',
+                        'PTSC' => 'PTSC',
+                        'Sahayak' => 'Sahayak',
+                        'Sanitary Cleaner' => 'Sanitary Cleaner',
+                        'Secuirty Guard' => 'Secuirty Guard',
+                        'Teacher' => 'Teacher',
+                        'Ward Attendant (Male)' => 'Ward Attendant (Male)',
+                    ])
                     ->required(),
-                TextInput::make('grade')
+                Select::make('grade')
+                    ->options([
+                        'IV' => 'IV',
+                    ])
                     ->required(),
                 TextInput::make('pay_band')
-                    ->required(),
+                    ->nullable(),
                 TextInput::make('grade_pay')
-                    ->required(),
+                    ->nullable(),
                 DatePicker::make('date_of_joining')
                     ->required(),
                 DatePicker::make('dor')
                     ->required(),
                 TextInput::make('gpf_nps')
-                    ->required(),
+                    ->nullable(),
                 TextInput::make('email')
                     ->label('Email address')
                     ->email()
-                    ->required(),
+                    ->nullable(),
                 TextInput::make('present_address')
                     ->required(),
                 TextInput::make('permanent_address')
@@ -130,11 +171,41 @@ class EmployeeResource extends Resource
                     ->required(),
                 TextInput::make('ac_number')
                     ->required(),
-                TextInput::make('ac_type')
+                Select::make('ac_type')
+                    ->options([
+                        'Savings' => 'Savings',
+                        'Salary' => 'Salary',
+                    ])
                     ->required(),
                 TextInput::make('ac_name')
                     ->required(),
-                TextInput::make('ac_bank')
+                Select::make('ac_bank')
+                    ->options([
+                        'SBI' => 'State Bank of India',
+                        'BOB' => 'Bank of Baroda',
+                        'BOI' => 'Bank of India',
+                        'UCO' => 'UCO Bank',
+                        'Canara' => 'Canara Bank',
+                        'Bandhan' => 'Bandhan Bank',
+                        'Allahabad' => 'Allahabad Bank',
+                        'Corporation' => 'Corporation Bank',
+                        'IDBI' => 'IDBI Bank',
+                        'United Bank of India' => 'United Bank of India',
+                        'Indian Bank' => 'Indian Bank',
+                        'Indian Overseas Bank' => 'Indian Overseas Bank',
+                        'Punjab National Bank' => 'Punjab National Bank',
+                        'Union Bank of India' => 'Union Bank of India',
+                        'ICICI Bank' => 'ICICI Bank',
+                        'HDFC Bank' => 'HDFC Bank',
+                        'Axis Bank' => 'Axis Bank',
+                        'IndusInd Bank' => 'IndusInd Bank',
+                        'Kotak Mahindra Bank' => 'Kotak Mahindra Bank',
+                        'Yes Bank' => 'Yes Bank',
+                        'IDFC First Bank' => 'IDFC First Bank',
+                        'Bandhan Bank' => 'Bandhan Bank',
+                        'RBL Bank' => 'RBL Bank',
+                        'Federal Bank' => 'Federal Bank',
+                    ])
                     ->required(),
                 TextInput::make('ac_branch')
                     ->required(),
