@@ -27,9 +27,20 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
+            ->brandLogo(new \Illuminate\Support\HtmlString('
+                <div style="display: flex; align-items: center; gap: 0.75rem; height: 100%;">
+                    <img src="' . asset('logo.png') . '" alt="Logo" style="height: 1.5rem; max-height: 24px; width: auto; object-fit: contain; flex-shrink: 0;" />
+                    <span style="font-size: 1.25rem; font-weight: 700; line-height: 1.5rem; letter-spacing: -0.025em; white-space: nowrap;">
+                        Contractual Employee Management Hub
+                    </span>
+                </div>
+            '))
+            ->brandLogoHeight('1.5rem')
+            ->brandName('Contractual Employee Management Hub')
             ->id('admin')
             ->path('admin')
             ->login()
+            ->passwordReset()
             ->colors([
                 'primary' => Color::Green,
             ])

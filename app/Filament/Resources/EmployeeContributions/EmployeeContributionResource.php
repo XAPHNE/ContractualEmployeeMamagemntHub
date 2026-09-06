@@ -40,26 +40,51 @@ class EmployeeContributionResource extends Resource
                 Select::make('employee_id')
                     ->label('Employee')
                     ->relationship('employee', 'full_Name')
-                    ->searchable()
+                    ->searchable(['emp_id','full_Name'])
                     ->preload()
                     ->required(),
-                TextInput::make('month')
-                    ->label('Month (1-12)')
-                    ->numeric()
-                    ->minValue(1)
-                    ->maxValue(12)
+                Select::make('month')
+                    ->label('Month')
+                    ->options([
+                        1 => 'January',
+                        2 => 'February',
+                        3 => 'March',
+                        4 => 'April',
+                        5 => 'May',
+                        6 => 'June',
+                        7 => 'July',
+                        8 => 'August',
+                        9 => 'September',
+                        10 => 'October',
+                        11 => 'November',
+                        12 => 'December',
+                    ])
                     ->required(),
                 TextInput::make('fin_year')
                     ->label('Financial Year')
-                    ->placeholder('e.g. 2024-25')
+                    ->placeholder('e.g. 2026-27')
+                    ->regex('/^\d{4}-\d{2}$/')
+                    ->datalist(function () {
+                        $currentYear = now()->month >= 4 ? now()->year : now()->year - 1;
+                        return collect(range(-1, 1))->mapWithKeys(function ($offset) use ($currentYear) {
+                            $start = $currentYear + $offset;
+                            $fy = $start . '-' . substr((string) ($start + 1), -2);
+                            return [$fy => $fy];
+                        })->values()->all();
+                    })
                     ->required(),
                 TextInput::make('contribution_amount')
                     ->label('Contribution Amount')
                     ->prefix('₹')
                     ->numeric()
+                    ->default(225.0)
+                    ->minValue(0)
+                    ->maxValue(9999)
                     ->required(),
                 DatePicker::make('contribution_date')
                     ->label('Contribution Date')
+                    ->readOnly()
+                    ->default(today())
                     ->required(),
             ]);
     }
