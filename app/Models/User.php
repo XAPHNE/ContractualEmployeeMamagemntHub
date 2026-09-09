@@ -46,6 +46,17 @@ class User extends Authenticatable implements FilamentUser, HasEmailAuthenticati
         return true;
     }
 
+    public function hasEmailAuthentication(): bool
+    {
+        $force2fa = rescue(fn () => filter_var(Setting::get('force_2fa', false), FILTER_VALIDATE_BOOLEAN), false);
+
+        if ($force2fa) {
+            return true;
+        }
+
+        return (bool) $this->has_email_authentication;
+    }
+
     public function createdUsers()
     {
         return $this->hasMany(User::class, 'created_by');

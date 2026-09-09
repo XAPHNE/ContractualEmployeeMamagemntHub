@@ -3,6 +3,9 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\EditProfile;
+use App\Filament\Widgets\WelcomeWidget;
+use App\Models\Setting;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Auth\MultiFactor\Email\EmailAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -12,13 +15,12 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
@@ -27,9 +29,9 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
-            ->brandLogo(new \Illuminate\Support\HtmlString('
+            ->brandLogo(new HtmlString('
                 <div style="display: flex; align-items: center; gap: 0.75rem; height: 100%;">
-                    <img src="' . asset('logo.png') . '" alt="Logo" style="height: 1.5rem; max-height: 24px; width: auto; object-fit: contain; flex-shrink: 0;" />
+                    <img src="'.asset('logo.png').'" alt="Logo" style="height: 1.5rem; max-height: 24px; width: auto; object-fit: contain; flex-shrink: 0;" />
                     <span style="font-size: 1.25rem; font-weight: 700; line-height: 1.5rem; letter-spacing: -0.025em; white-space: nowrap;">
                         Contractual Employee Management Hub
                     </span>
@@ -48,7 +50,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->profile(EditProfile::class, isSimple: false)
             ->plugins([
-                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
+                FilamentShieldPlugin::make(),
             ])
             ->navigationGroups([
                 'Management',
@@ -62,7 +64,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                \App\Filament\Widgets\WelcomeWidget::class,
+                WelcomeWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -78,7 +80,7 @@ class AdminPanelProvider extends PanelProvider
             ->multiFactorAuthentication([
                 EmailAuthentication::make()
                     ->codeExpiryMinutes(10),
-            ], isRequired: true)
+            ], isRequired: fn (): bool => rescue(fn () => filter_var(Setting::get('force_2fa', false), FILTER_VALIDATE_BOOLEAN), false))
             ->authMiddleware([
                 Authenticate::class,
             ]);
