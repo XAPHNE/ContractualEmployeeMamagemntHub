@@ -2,17 +2,19 @@
 
 namespace App\Filament\Widgets;
 
-use App\Filament\Resources\Ddos\DdoResource;
 use App\Models\Ddo;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 
 class LatestDdosWidget extends BaseWidget
 {
+    use HasWidgetShield;
+
     protected static ?int $sort = 3;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {
