@@ -75,4 +75,14 @@ class User extends Authenticatable implements FilamentUser, HasEmailAuthenticati
     {
         return $this->belongsTo(User::class, 'deleted_by');
     }
+
+    public function ddo()
+    {
+        return $this->hasOne(Ddo::class, 'email', 'email');
+    }
+
+    public function isDdo(): bool
+    {
+        return $this->hasRole('DDO') || $this->ddo()->exists();
+    }
 }

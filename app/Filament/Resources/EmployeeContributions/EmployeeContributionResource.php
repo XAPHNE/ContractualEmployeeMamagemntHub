@@ -17,6 +17,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class EmployeeContributionResource extends Resource
 {
@@ -30,7 +31,7 @@ class EmployeeContributionResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return (string) static::getModel()::count();
+        return (string) static::getEloquentQuery()->count();
     }
 
     public static function form(Schema $schema): Schema
@@ -39,8 +40,16 @@ class EmployeeContributionResource extends Resource
             ->components([
                 Select::make('employee_id')
                     ->label('Employee')
-                    ->relationship('employee', 'full_Name')
-                    ->searchable(['emp_id','full_Name'])
+                    ->relationship(
+                        'employee',
+                        'full_Name',
+                        modifyQueryUsing: fn ($query) => $query
+                            ->where(function ($q) {
+                                $q->where('active', 'true')->orWhere('active', '1');
+                            })
+                            ->when(auth()->user()?->ddo, fn ($q, $ddo) => $q->where('ddo_id', $ddo->id))
+                    )
+                    ->searchable(['emp_id', 'full_Name'])
                     ->preload()
                     ->required(),
                 Select::make('month')
@@ -66,9 +75,11 @@ class EmployeeContributionResource extends Resource
                     ->regex('/^\d{4}-\d{2}$/')
                     ->datalist(function () {
                         $currentYear = now()->month >= 4 ? now()->year : now()->year - 1;
+
                         return collect(range(-1, 1))->mapWithKeys(function ($offset) use ($currentYear) {
                             $start = $currentYear + $offset;
-                            $fy = $start . '-' . substr((string) ($start + 1), -2);
+                            $fy = $start.'-'.substr((string) ($start + 1), -2);
+
                             return [$fy => $fy];
                         })->values()->all();
                     })
@@ -140,6 +151,17 @@ class EmployeeContributionResource extends Resource
                     DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        if (auth()->check() && ($ddo = auth()->user()->ddo)) {
+            $query->whereHas('employee', fn ($q) => $q->where('ddo_id', $ddo->id));
+        }
+
+        return $query;
     }
 
     public static function getPages(): array

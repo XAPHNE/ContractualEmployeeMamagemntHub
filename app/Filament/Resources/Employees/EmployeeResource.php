@@ -4,7 +4,9 @@ namespace App\Filament\Resources\Employees;
 
 use App\Filament\Resources\Employees\Pages\ManageEmployees;
 use App\Models\Employee;
+use App\Models\EmployeeContribution;
 use BackedEnum;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -16,7 +18,9 @@ use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -25,7 +29,9 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeResource extends Resource
 {
@@ -39,7 +45,7 @@ class EmployeeResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return (string) static::getModel()::count();
+        return (string) static::getEloquentQuery()->count();
     }
 
     public static function form(Schema $schema): Schema
@@ -162,6 +168,9 @@ class EmployeeResource extends Resource
                     ->relationship('ddo', 'ddoName')
                     ->searchable()
                     ->preload()
+                    ->default(fn () => auth()->user()?->ddo?->id)
+                    ->disabled(fn () => (bool) auth()->user()?->ddo)
+                    ->dehydrated()
                     ->nullable(),
                 Select::make('active')
                     ->options([
@@ -325,11 +334,140 @@ class EmployeeResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('bulk_contribution')
+                        ->label('Record Monthly Contribution')
+                        ->icon(Heroicon::OutlinedBanknotes)
+                        ->color('success')
+                        ->modalHeading('Deposit Monthly Contribution for Selected Employees')
+                        ->modalDescription('Record uniform health insurance contribution for the selected employees deposited to GoA Treasury.')
+                        ->form([
+                            Grid::make(2)->schema([
+                                Select::make('fin_year')
+                                    ->label('Financial Year')
+                                    ->options(function () {
+                                        $currentYear = now()->month >= 4 ? now()->year : now()->year - 1;
+
+                                        return collect(range(-1, 2))->mapWithKeys(function ($offset) use ($currentYear) {
+                                            $start = $currentYear + $offset;
+                                            $fy = $start.'-'.substr((string) ($start + 1), -2);
+
+                                            return [$fy => $fy];
+                                        })->all();
+                                    })
+                                    ->default(function () {
+                                        $currentYear = now()->month >= 4 ? now()->year : now()->year - 1;
+
+                                        return $currentYear.'-'.substr((string) ($currentYear + 1), -2);
+                                    })
+                                    ->required(),
+                                Select::make('month')
+                                    ->label('Contribution Month')
+                                    ->options([
+                                        1 => 'January (Month 1)',
+                                        2 => 'February (Month 2)',
+                                        3 => 'March (Month 3)',
+                                        4 => 'April (Month 4)',
+                                        5 => 'May (Month 5)',
+                                        6 => 'June (Month 6)',
+                                        7 => 'July (Month 7)',
+                                        8 => 'August (Month 8)',
+                                        9 => 'September (Month 9)',
+                                        10 => 'October (Month 10)',
+                                        11 => 'November (Month 11)',
+                                        12 => 'December (Month 12)',
+                                    ])
+                                    ->default(now()->month)
+                                    ->required(),
+                                TextInput::make('contribution_amount')
+                                    ->label('Contribution Amount (Per Employee)')
+                                    ->prefix('₹')
+                                    ->numeric()
+                                    ->default(225.0)
+                                    ->minValue(1)
+                                    ->required(),
+                                DatePicker::make('contribution_date')
+                                    ->label('Treasury Deposit Date')
+                                    ->default(today())
+                                    ->maxDate(today())
+                                    ->required(),
+                            ]),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $finYear = $data['fin_year'];
+                            $month = (int) $data['month'];
+                            $amount = (float) $data['contribution_amount'];
+                            $date = $data['contribution_date'];
+
+                            $successCount = 0;
+                            $skippedCount = 0;
+                            $reasons = [];
+
+                            DB::transaction(function () use ($records, $finYear, $month, $amount, $date, &$successCount, &$skippedCount, &$reasons) {
+                                foreach ($records as $employee) {
+                                    // Rule 1: Must be active
+                                    if ($employee->active !== 'true' && $employee->active !== '1') {
+                                        $skippedCount++;
+                                        $reasons[] = "{$employee->full_Name} is marked inactive.";
+
+                                        continue;
+                                    }
+
+                                    // Rule 2: Chronological check within the same financial year
+                                    $latestMonth = $employee->contributions()
+                                        ->where('fin_year', $finYear)
+                                        ->max('month');
+
+                                    if ($latestMonth !== null && $month <= $latestMonth) {
+                                        $skippedCount++;
+                                        $reasons[] = "{$employee->full_Name} already has contribution up to Month {$latestMonth} in {$finYear}.";
+
+                                        continue;
+                                    }
+
+                                    EmployeeContribution::create([
+                                        'employee_id' => $employee->id,
+                                        'fin_year' => $finYear,
+                                        'month' => $month,
+                                        'contribution_amount' => $amount,
+                                        'contribution_date' => $date,
+                                    ]);
+
+                                    $successCount++;
+                                }
+                            });
+
+                            if ($successCount > 0) {
+                                Notification::make()
+                                    ->title('Contributions Recorded')
+                                    ->body("Successfully created {$successCount} contribution records for Month {$month} ({$finYear}).".($skippedCount > 0 ? " ({$skippedCount} skipped due to business rules)" : ''))
+                                    ->success()
+                                    ->send();
+                            }
+
+                            if ($skippedCount > 0 && $successCount === 0) {
+                                Notification::make()
+                                    ->title('No Contributions Created')
+                                    ->body("All {$skippedCount} selected employee(s) were skipped:\n".implode("\n", array_slice($reasons, 0, 5)))
+                                    ->warning()
+                                    ->send();
+                            }
+                        }),
                     DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        if (auth()->check() && ($ddo = auth()->user()->ddo)) {
+            $query->where('ddo_id', $ddo->id);
+        }
+
+        return $query;
     }
 
     public static function getPages(): array

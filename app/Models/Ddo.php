@@ -4,14 +4,15 @@ namespace App\Models;
 
 use App\Observers\DdoObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[ObservedBy([DdoObserver::class])]
 class Ddo extends Model
 {
-    use SoftDeletes, HasFactory;    
+    use HasFactory, SoftDeletes;
+
     protected $fillable = [
         'ddoId',
         'ddoName',
@@ -44,5 +45,10 @@ class Ddo extends Model
     public function deletedBy()
     {
         return $this->belongsTo(User::class, 'deleted_by');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'email', 'email');
     }
 }
