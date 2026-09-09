@@ -405,7 +405,7 @@ class EmployeeResource extends Resource
                             DB::transaction(function () use ($records, $finYear, $month, $amount, $date, &$successCount, &$skippedCount, &$reasons) {
                                 foreach ($records as $employee) {
                                     // Rule 1: Must be active
-                                    if ($employee->active !== 'true' && $employee->active !== '1') {
+                                    if (! $employee->isActive()) {
                                         $skippedCount++;
                                         $reasons[] = "{$employee->full_Name} is marked inactive.";
 

@@ -47,7 +47,7 @@ class BulkContributionTest extends TestCase
 
         $activeEmployee2 = Employee::factory()->create([
             'ddo_id' => $ddo->id,
-            'active' => '1',
+            'active' => 'TRUE',
         ]);
 
         $inactiveEmployee = Employee::factory()->create([
@@ -69,7 +69,7 @@ class BulkContributionTest extends TestCase
 
         $created = 0;
         foreach ($targetEmployees as $emp) {
-            if ($emp->active !== 'true' && $emp->active !== '1') {
+            if (! $emp->isActive()) {
                 continue;
             }
 

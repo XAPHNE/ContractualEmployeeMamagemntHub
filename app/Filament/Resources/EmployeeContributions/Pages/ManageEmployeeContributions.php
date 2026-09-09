@@ -94,10 +94,7 @@ class ManageEmployeeContributions extends ManageRecords
                         ->searchable()
                         ->options(function (Get $get) {
                             $user = auth()->user();
-                            $query = Employee::query()
-                                ->where(function ($q) {
-                                    $q->where('active', 'true')->orWhere('active', '1');
-                                });
+                            $query = Employee::query()->active();
 
                             if ($user && ($ddo = $user->ddo)) {
                                 $query->where('ddo_id', $ddo->id);
@@ -152,7 +149,7 @@ class ManageEmployeeContributions extends ManageRecords
 
                         foreach ($employees as $employee) {
                             // Rule 1: Active check
-                            if ($employee->active !== 'true' && $employee->active !== '1') {
+                            if (! $employee->isActive()) {
                                 $skippedCount++;
                                 $reasons[] = "{$employee->full_Name} is marked inactive.";
 

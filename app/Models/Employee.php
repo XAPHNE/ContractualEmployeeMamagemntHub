@@ -58,6 +58,21 @@ class Employee extends Model
         ];
     }
 
+    public function isActive(): bool
+    {
+        return filter_var($this->active, FILTER_VALIDATE_BOOLEAN)
+            || in_array(strtolower(trim((string) $this->active)), ['1', 'true', 'yes']);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereRaw('LOWER(active) = ?', ['true'])
+                ->orWhere('active', '1')
+                ->orWhereRaw('LOWER(active) = ?', ['yes']);
+        });
+    }
+
     public function ddo()
     {
         return $this->belongsTo(Ddo::class, 'ddo_id');

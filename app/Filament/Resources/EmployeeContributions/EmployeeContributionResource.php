@@ -44,9 +44,7 @@ class EmployeeContributionResource extends Resource
                         'employee',
                         'full_Name',
                         modifyQueryUsing: fn ($query) => $query
-                            ->where(function ($q) {
-                                $q->where('active', 'true')->orWhere('active', '1');
-                            })
+                            ->active()
                             ->when(auth()->user()?->ddo, fn ($q, $ddo) => $q->where('ddo_id', $ddo->id))
                     )
                     ->searchable(['emp_id', 'full_Name'])
