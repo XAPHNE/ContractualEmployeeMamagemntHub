@@ -53,7 +53,7 @@ class MmlsayApiController extends Controller
             $dor = $employee->dor ? $employee->dor->format('d-m-Y') : '';
 
             $profile = [
-                'id' => (string) $employee->id,
+                'id' => (string) $employee->emp_id,
                 'full_Name' => $employee->full_Name ?? '',
                 'first_Name' => $employee->first_Name ?? '',
                 'middle_Name' => $employee->middle_Name ?? '',
