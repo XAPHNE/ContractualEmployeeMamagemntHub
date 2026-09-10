@@ -15,6 +15,7 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
@@ -37,6 +38,8 @@ class DdoResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedIdentification;
 
     protected static ?string $recordTitleAttribute = 'ddoName';
+
+    protected static ?int $navigationSort = 2;
 
     public static function getNavigationBadge(): ?string
     {
@@ -66,10 +69,26 @@ class DdoResource extends Resource
                     ->label('PAN')
                     ->required()
                     ->maxLength(10),
-                TextInput::make('departmentName')
-                    ->label('Department Name')
-                    ->required()
-                    ->maxLength(255),
+                Select::make('department_id')
+                    ->label('Department')
+                    ->relationship('department', 'code')
+                    ->searchable()
+                    ->preload()
+                    ->createOptionForm([
+                        TextInput::make('name')
+                            ->label('Department Name')
+                            ->required()
+                            ->maxLength(255),
+                        TextInput::make('code')
+                            ->label('Department Code')
+                            ->required()
+                            ->maxLength(50),
+                        TextInput::make('dept_id')
+                            ->label('Department ID')
+                            ->helperText('Leave empty to auto-generate')
+                            ->maxLength(50),
+                    ])
+                    ->required(),
                 TextInput::make('directorate')
                     ->label('Directorate')
                     ->maxLength(255),
@@ -128,7 +147,7 @@ class DdoResource extends Resource
                     ->label('PAN')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('departmentName')
+                TextColumn::make('department.name')
                     ->label('Department')
                     ->searchable()
                     ->sortable(),

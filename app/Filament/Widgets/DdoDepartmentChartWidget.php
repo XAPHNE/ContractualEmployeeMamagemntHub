@@ -2,10 +2,9 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Ddo;
+use App\Models\Department;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\ChartWidget;
-use Illuminate\Support\Facades\DB;
 
 class DdoDepartmentChartWidget extends ChartWidget
 {
@@ -19,12 +18,11 @@ class DdoDepartmentChartWidget extends ChartWidget
 
     protected function getData(): array
     {
-        $departmentCounts = Ddo::query()
-            ->select('departmentName', DB::raw('count(*) as total'))
-            ->groupBy('departmentName')
-            ->orderByDesc('total')
+        $departmentCounts = Department::withCount('ddos')
+            ->having('ddos_count', '>', 0)
+            ->orderByDesc('ddos_count')
             ->limit(10)
-            ->pluck('total', 'departmentName')
+            ->pluck('ddos_count', 'name')
             ->toArray();
 
         return [

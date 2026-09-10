@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Ddo;
+use App\Models\Department;
 use App\Models\User;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
@@ -17,7 +18,7 @@ class DdoStatsOverviewWidget extends BaseWidget
     protected function getStats(): array
     {
         $totalDdos = Ddo::count();
-        $totalDepartments = Ddo::distinct('departmentName')->count('departmentName');
+        $totalDepartments = Department::count();
         $totalDistricts = Ddo::distinct('districtName')->count('districtName');
         $totalUsers = User::count();
 

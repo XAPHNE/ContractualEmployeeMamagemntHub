@@ -17,7 +17,7 @@ class Ddo extends Model
         'ddoId',
         'ddoName',
         'pan',
-        'departmentName',
+        'department_id',
         'directorate',
         'postName',
         'officeName',
@@ -50,5 +50,15 @@ class Ddo extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'email', 'email');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function getDepartmentNameAttribute(): ?string
+    {
+        return $this->department?->name;
     }
 }

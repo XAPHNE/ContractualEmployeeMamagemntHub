@@ -29,6 +29,8 @@ class EmployeeContributionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
 
+    protected static ?int $navigationSort = 4;
+
     public static function getNavigationBadge(): ?string
     {
         return (string) static::getEloquentQuery()->count();

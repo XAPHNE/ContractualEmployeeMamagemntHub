@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Ddo;
+use App\Models\Department;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,21 +23,7 @@ class DdoFactory extends Factory
             'ddoId' => $this->faker->unique()->numerify('########'),
             'ddoName' => $this->faker->name,
             'pan' => $this->faker->regexify('[A-Z]{5}[0-9]{4}[A-Z]{1}'),
-            'departmentName' => $this->faker->randomElement([
-                'Generation',
-                'PP&I',
-                'H&C',
-                'F&A',
-                'HR',
-                'Procurement',
-                'TRC',
-                'IT Cell',
-                'Legal',
-                'NTPS',
-                'LTPS',
-                'KLHEP',
-                'LKHEP'
-            ]),
+            'department_id' => Department::factory(),
             'directorate' => $this->faker->optional()->bs,
             'postName' => $this->faker->jobTitle,
             'officeName' => $this->faker->company,

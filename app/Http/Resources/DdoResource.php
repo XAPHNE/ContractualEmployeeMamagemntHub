@@ -2,11 +2,12 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Ddo;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \App\Models\Ddo
+ * @mixin Ddo
  */
 class DdoResource extends JsonResource
 {
@@ -21,6 +22,7 @@ class DdoResource extends JsonResource
             'ddoId' => $this->ddoId,
             'ddoName' => $this->ddoName,
             'pan' => $this->pan,
+            'department_id' => $this->department_id,
             'departmentName' => $this->departmentName,
             'directorate' => $this->directorate,
             'postName' => $this->postName,

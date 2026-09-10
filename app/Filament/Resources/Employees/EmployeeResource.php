@@ -43,6 +43,8 @@ class EmployeeResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'Employee';
 
+    protected static ?int $navigationSort = 3;
+
     public static function getNavigationBadge(): ?string
     {
         return (string) static::getEloquentQuery()->count();

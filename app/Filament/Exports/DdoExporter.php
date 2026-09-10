@@ -17,7 +17,7 @@ class DdoExporter extends Exporter
             ExportColumn::make('ddoId')->label('Employee ID'),
             ExportColumn::make('ddoName')->label('Employee Name'),
             ExportColumn::make('pan')->label('PAN'),
-            ExportColumn::make('departmentName')->label('Department Name'),
+            ExportColumn::make('department.name')->label('Department Name'),
             ExportColumn::make('directorate')->label('Directorate'),
             ExportColumn::make('postName')->label('Post Name'),
             ExportColumn::make('officeName')->label('Office Name'),
@@ -36,10 +36,10 @@ class DdoExporter extends Exporter
 
     public static function getCompletedNotificationBody(Export $export): string
     {
-        $body = 'Your employee/DDO records export has completed and ' . number_format($export->successful_rows) . ' ' . str('row')->plural($export->successful_rows) . ' exported.';
+        $body = 'Your employee/DDO records export has completed and '.number_format($export->successful_rows).' '.str('row')->plural($export->successful_rows).' exported.';
 
         if ($failedRowsCount = $export->getFailedRowsCount()) {
-            $body .= ' ' . number_format($failedRowsCount) . ' ' . str('row')->plural($failedRowsCount) . ' failed to export.';
+            $body .= ' '.number_format($failedRowsCount).' '.str('row')->plural($failedRowsCount).' failed to export.';
         }
 
         return $body;

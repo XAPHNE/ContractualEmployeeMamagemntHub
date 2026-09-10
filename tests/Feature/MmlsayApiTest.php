@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\ApiKey;
 use App\Models\Ddo;
+use App\Models\Department;
 use App\Models\Employee;
 use App\Models\EmployeeContribution;
 use App\Models\User;
@@ -52,10 +53,18 @@ class MmlsayApiTest extends TestCase
             'is_active' => true,
         ]);
 
+        $department = Department::create([
+            'name' => 'Panchayat & Rural Development Department',
+            'code' => 'P&RD',
+            'dept_id' => '32',
+            'created_by' => $user->id,
+            'updated_by' => $user->id,
+        ]);
+
         $ddo = Ddo::factory()->create([
             'ddoId' => '26226',
             'ddoName' => 'DDO/PRD/001',
-            'departmentName' => 'Panchayat & Rural Development Department',
+            'department_id' => $department->id,
             'districtName' => 'Kamrup',
             'treasuryName' => 'Kamrup, Amingaon',
             'treasuryCode' => 'T-001',
@@ -167,6 +176,7 @@ class MmlsayApiTest extends TestCase
                 'ddo' => [
                     'ddo_id' => '26226',
                     'department' => 'Panchayat & Rural Development Department',
+                    'department_id' => '32',
                 ],
                 'contribution_info' => [
                     'contribution_amount' => 225.0,

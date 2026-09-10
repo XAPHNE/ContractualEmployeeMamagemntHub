@@ -33,7 +33,7 @@ class LatestDdosWidget extends BaseWidget
                     ->label('Employee Name')
                     ->weight('bold')
                     ->searchable(),
-                TextColumn::make('departmentName')
+                TextColumn::make('department.name')
                     ->label('Department')
                     ->badge()
                     ->color('gray'),

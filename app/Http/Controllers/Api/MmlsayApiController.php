@@ -28,7 +28,7 @@ class MmlsayApiController extends Controller
                 ], 422);
             }
 
-            $query = Employee::with(['ddo', 'contributions']);
+            $query = Employee::with(['ddo.department', 'contributions']);
 
             if ($pan) {
                 $query->where('pan', $pan);
@@ -88,9 +88,11 @@ class MmlsayApiController extends Controller
             ];
 
             $ddoModel = $employee->ddo;
+            $departmentModel = $ddoModel?->department;
+
             $ddo = [
-                'department' => $ddoModel?->departmentName ?? '',
-                'department_id' => $ddoModel ? (string) $ddoModel->id : '',
+                'department' => $departmentModel?->code ?? $ddoModel?->departmentName ?? '',
+                'department_id' => $departmentModel ? (string) $departmentModel->dept_id : ($ddoModel ? (string) $ddoModel->id : ''),
                 'department_district' => $ddoModel?->districtName ?? '',
                 'treasury' => $ddoModel?->treasuryName ?? '',
                 'treasury_id' => $ddoModel?->treasuryCode ?? '',

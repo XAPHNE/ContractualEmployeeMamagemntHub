@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('ddoId');
             $table->string('ddoName');
             $table->string('pan');
-            $table->string('departmentName');
+            $table->foreignId('department_id')->constrained('departments')->onUpdate('cascade')->onDelete('restrict');
             $table->string('directorate')->nullable();
             $table->string('postName');
             $table->string('officeName');
