@@ -27,18 +27,23 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        $getAppName = fn (): string => (string) rescue(
+            fn () => Setting::get('app_name') ?: config('app.name'),
+            config('app.name')
+        );
+
         return $panel
             ->default()
-            ->brandLogo(new HtmlString('
+            ->brandLogo(fn () => new HtmlString('
                 <div style="display: flex; align-items: center; gap: 0.75rem; height: 100%;">
                     <img src="'.asset('logo.png').'" alt="Logo" style="height: 1.5rem; max-height: 24px; width: auto; object-fit: contain; flex-shrink: 0;" />
                     <span style="font-size: 1.25rem; font-weight: 700; line-height: 1.5rem; letter-spacing: -0.025em; white-space: nowrap;">
-                        Contractual Employee Management Hub
+                        '.e($getAppName()).'
                     </span>
                 </div>
             '))
             ->brandLogoHeight('1.5rem')
-            ->brandName('Contractual Employee Management Hub')
+            ->brandName($getAppName)
             ->id('admin')
             ->path('admin')
             ->login()

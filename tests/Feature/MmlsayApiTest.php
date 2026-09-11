@@ -175,7 +175,7 @@ class MmlsayApiTest extends TestCase
                 ],
                 'ddo' => [
                     'ddo_id' => '26226',
-                    'department' => 'Panchayat & Rural Development Department',
+                    'department' => 'P&RD',
                     'department_id' => '32',
                 ],
                 'contribution_info' => [
