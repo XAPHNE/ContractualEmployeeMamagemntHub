@@ -130,7 +130,7 @@ app/
 │   │   ├── Ddos/                        # Contractual Employee / DDO resource
 │   │   └── Users/                       # Portal user management resource
 │   └── Widgets/
-│       ├── DdoDepartmentChartWidget.php # Department breakdown chart
+│       ├── MonthlyContributionChartWidget.php # Monthly contributions & active employee chart
 │       ├── DdoStatsOverviewWidget.php   # System-wide metrics & counters
 │       └── LatestDdosWidget.php         # Recent employee registrations
 ├── Listeners/

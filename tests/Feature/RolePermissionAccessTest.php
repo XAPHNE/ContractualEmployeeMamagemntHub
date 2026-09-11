@@ -1,9 +1,9 @@
 <?php
 
 use App\Filament\Pages\SystemSettings;
-use App\Filament\Widgets\DdoDepartmentChartWidget;
 use App\Filament\Widgets\DdoStatsOverviewWidget;
 use App\Filament\Widgets\LatestDdosWidget;
+use App\Filament\Widgets\MonthlyContributionChartWidget;
 use App\Filament\Widgets\WelcomeWidget;
 use App\Models\User;
 use Filament\Facades\Filament;
@@ -18,7 +18,7 @@ beforeEach(function () {
         'View:SystemSettings',
         'View:WelcomeWidget',
         'View:DdoStatsOverviewWidget',
-        'View:DdoDepartmentChartWidget',
+        'View:MonthlyContributionChartWidget',
         'View:LatestDdosWidget',
     ];
 
@@ -41,7 +41,7 @@ test('super admin has access to system settings page and all widgets', function 
     expect(SystemSettings::canAccess())->toBeTrue();
     expect(WelcomeWidget::canView())->toBeTrue();
     expect(DdoStatsOverviewWidget::canView())->toBeTrue();
-    expect(DdoDepartmentChartWidget::canView())->toBeTrue();
+    expect(MonthlyContributionChartWidget::canView())->toBeTrue();
     expect(LatestDdosWidget::canView())->toBeTrue();
 });
 
@@ -54,6 +54,6 @@ test('ddo role without page or widget permissions cannot access system settings 
     expect(SystemSettings::canAccess())->toBeFalse();
     expect(WelcomeWidget::canView())->toBeFalse();
     expect(DdoStatsOverviewWidget::canView())->toBeFalse();
-    expect(DdoDepartmentChartWidget::canView())->toBeFalse();
+    expect(MonthlyContributionChartWidget::canView())->toBeFalse();
     expect(LatestDdosWidget::canView())->toBeFalse();
 });
