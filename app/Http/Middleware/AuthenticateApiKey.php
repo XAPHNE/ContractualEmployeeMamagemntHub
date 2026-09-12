@@ -61,7 +61,22 @@ class AuthenticateApiKey
             ], 403);
         }
 
-        // 4. Rate Limiting per API Key
+        // 4. Check Service / Controller Authorization
+        if ($apiKey->api_controller) {
+            $routeController = $request->route()?->getControllerClass();
+
+            if ($routeController && class_basename($routeController) !== class_basename($apiKey->api_controller)) {
+                $this->logRequest($apiKey, $request, 403, 0, $startTime);
+
+                return response()->json([
+                    'status' => 'error',
+                    'code' => 'FORBIDDEN_SERVICE',
+                    'message' => 'This API Key is not authorized to access this service endpoint.',
+                ], 403);
+            }
+        }
+
+        // 5. Rate Limiting per API Key
         $rateLimitKey = 'api_key:'.$apiKey->id;
         $maxAttempts = $apiKey->rate_limit_per_minute ?: 60;
 

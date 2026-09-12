@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('employee_code');
             $table->string('pan');
             $table->string('gender');
-            $table->string('dob');
+            $table->date('dob');
             $table->string('designation');
             $table->string('grade');
             $table->string('pay_band')->nullable();
@@ -37,7 +37,7 @@ return new class extends Migration
             $table->string('pincode');
             $table->string('district');
             $table->foreignId('ddo_id')->nullable()->constrained('ddos')->onUpdate('cascade')->onDelete('restrict');
-            $table->string('active');
+            $table->boolean('active')->default(true);
             $table->string('ac_number');
             $table->string('ac_type');
             $table->string('ac_name');

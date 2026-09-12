@@ -53,8 +53,10 @@ class Employee extends Model
     protected function casts(): array
     {
         return [
+            'dob' => 'date',
             'date_of_joining' => 'date',
             'dor' => 'date',
+            'active' => 'boolean',
         ];
     }
 

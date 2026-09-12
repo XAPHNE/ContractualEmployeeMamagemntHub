@@ -13,6 +13,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -40,38 +41,13 @@ class EmployeeContributionResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('employee_id')
-                    ->label('Employee')
-                    ->relationship(
-                        'employee',
-                        'full_Name',
-                        modifyQueryUsing: fn ($query) => $query
-                            ->active()
-                            ->when(auth()->user()?->ddo, fn ($q, $ddo) => $q->where('ddo_id', $ddo->id))
-                    )
-                    ->searchable(['emp_id', 'full_Name'])
-                    ->preload()
-                    ->required(),
-                Select::make('month')
-                    ->label('Month')
-                    ->options([
-                        1 => 'January',
-                        2 => 'February',
-                        3 => 'March',
-                        4 => 'April',
-                        5 => 'May',
-                        6 => 'June',
-                        7 => 'July',
-                        8 => 'August',
-                        9 => 'September',
-                        10 => 'October',
-                        11 => 'November',
-                        12 => 'December',
-                    ])
-                    ->required(),
                 TextInput::make('fin_year')
                     ->label('Financial Year')
-                    ->placeholder('e.g. 2026-27')
+                    ->default(function () {
+                        $currentYear = now()->month >= 4 ? now()->year : now()->year - 1;
+
+                        return $currentYear.'-'.substr((string) ($currentYear + 1), -2);
+                    })
                     ->regex('/^\d{4}-\d{2}$/')
                     ->datalist(function () {
                         $currentYear = now()->month >= 4 ? now()->year : now()->year - 1;
@@ -83,6 +59,46 @@ class EmployeeContributionResource extends Resource
                             return [$fy => $fy];
                         })->values()->all();
                     })
+                    ->live(onBlur: true)
+                    ->required(),
+                Select::make('month')
+                    ->label('Month')
+                    ->options([
+                        4 => 'April',
+                        5 => 'May',
+                        6 => 'June',
+                        7 => 'July',
+                        8 => 'August',
+                        9 => 'September',
+                        10 => 'October',
+                        11 => 'November',
+                        12 => 'December',
+                        1 => 'January',
+                        2 => 'February',
+                        3 => 'March',
+                    ])
+                    ->live()
+                    ->default(fn () => now()->month - 1)
+                    ->required(),
+                Select::make('employee_id')
+                    ->label('Employee')
+                    ->relationship(
+                        'employee',
+                        'full_Name',
+                        modifyQueryUsing: fn (Builder $query, Get $get, ?EmployeeContribution $record = null) => $query
+                            ->active()
+                            ->when(auth()->user()?->ddo, fn ($q, $ddo) => $q->where('ddo_id', $ddo->id))
+                            ->when(
+                                $get('fin_year') && $get('month'),
+                                fn ($q) => $q->whereDoesntHave('contributions', function ($subQuery) use ($get, $record) {
+                                    $subQuery->where('fin_year', $get('fin_year'))
+                                        ->where('month', (int) $get('month'))
+                                        ->when($record, fn ($sq) => $sq->where('id', '!=', $record->id));
+                                })
+                            )
+                    )
+                    ->searchable(['emp_id', 'full_Name'])
+                    ->preload()
                     ->required(),
                 TextInput::make('contribution_amount')
                     ->label('Contribution Amount')
@@ -94,7 +110,6 @@ class EmployeeContributionResource extends Resource
                     ->required(),
                 DatePicker::make('contribution_date')
                     ->label('Contribution Date')
-                    ->readOnly()
                     ->default(today())
                     ->required(),
             ]);

@@ -204,4 +204,37 @@ class MmlsayApiTest extends TestCase
                 'message' => "Employee record with PAN 'UNKNOWNPAN99' was not found.",
             ]);
     }
+
+    public function test_api_key_restricted_to_another_service_returns_forbidden(): void
+    {
+        $apiKey = ApiKey::create([
+            'name' => 'Employee Only Key',
+            'key' => 'employee_service_key_123',
+            'api_controller' => \App\Http\Controllers\Api\EmployeeApiController::class,
+            'is_active' => true,
+        ]);
+
+        $response = $this->getJson("/api/mmlsay/employee?Key={$apiKey->key}&pan=ABCDE1234F");
+
+        $response->assertStatus(403)
+            ->assertJson([
+                'status' => 'error',
+                'code' => 'FORBIDDEN_SERVICE',
+            ]);
+    }
+
+    public function test_api_key_assigned_to_matching_controller_is_authorized(): void
+    {
+        $apiKey = ApiKey::create([
+            'name' => 'MMLSAY Key',
+            'key' => 'mmlsay_service_key_123',
+            'api_controller' => \App\Http\Controllers\Api\MmlsayApiController::class,
+            'is_active' => true,
+        ]);
+
+        $response = $this->getJson("/api/mmlsay/employee?Key={$apiKey->key}&pan=NONEXISTENT");
+
+        // Returns 404 (not 403), meaning authentication and service authorization succeeded
+        $response->assertStatus(404);
+    }
 }

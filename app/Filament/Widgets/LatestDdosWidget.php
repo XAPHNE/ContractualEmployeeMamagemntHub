@@ -19,7 +19,7 @@ class LatestDdosWidget extends BaseWidget
     public function table(Table $table): Table
     {
         return $table
-            ->heading('Recently Added Employees / DDOs')
+            ->heading('Recently Added DDOs')
             ->query(
                 Ddo::query()->latest()->limit(5)
             )

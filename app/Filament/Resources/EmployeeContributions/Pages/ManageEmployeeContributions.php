@@ -82,7 +82,7 @@ class ManageEmployeeContributions extends ManageRecords
                             ->required(),
 
                         DatePicker::make('contribution_date')
-                            ->label('Treasury Deposit Date')
+                            ->label('Contribution Date')
                             ->default(today())
                             ->maxDate(today())
                             ->required(),

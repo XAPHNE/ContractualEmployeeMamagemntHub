@@ -15,6 +15,7 @@ return new class extends Migration
         Schema::create('api_keys', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('api_controller');
             $table->string('key', 64)->unique();
             $table->text('allowed_ips')->nullable();
             $table->unsignedInteger('rate_limit_per_minute')->default(60);

@@ -10,7 +10,7 @@ class SettingSeeder extends Seeder
     public function run(): void
     {
         $defaults = [
-            'app_name' => config('app.name', 'CEMH'),
+            'app_name' => config('app.name'),
             'allow_registration' => false,
             'allow_email_updates' => true,
             'allow_account_deletion' => false,
@@ -22,7 +22,7 @@ class SettingSeeder extends Seeder
             'require_special_characters' => false,
             'password_history_limit' => 3,
             'password_expiry_days' => 90,
-            'force_2fa' => true,
+            'force_2fa' => false,
             'allow_disabling_2fa' => false,
             'max_login_attempts' => 5,
             'login_lockout_hours' => 1,

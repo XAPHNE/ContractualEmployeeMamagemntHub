@@ -15,6 +15,7 @@ class ApiKey extends Model
 
     protected $fillable = [
         'name',
+        'api_controller',
         'key',
         'allowed_ips',
         'rate_limit_per_minute',
@@ -24,6 +25,53 @@ class ApiKey extends Model
         'created_by',
         'updated_by',
     ];
+
+    public const CONTROLLERS = [
+        \App\Http\Controllers\Api\MmlsayApiController::class => [
+            'name' => 'MmlsayApiController (MMLSAY Health Insurance)',
+            'endpoint' => '/api/mmlsay/employee',
+        ],
+        \App\Http\Controllers\Api\EmployeeApiController::class => [
+            'name' => 'EmployeeApiController (Employee Directory)',
+            'endpoint' => '/api/employees',
+        ],
+        \App\Http\Controllers\Api\DdoApiController::class => [
+            'name' => 'DdoApiController (DDO Management)',
+            'endpoint' => '/api/ddos',
+        ],
+    ];
+
+    public static function getControllerOptions(): array
+    {
+        return collect(self::CONTROLLERS)->mapWithKeys(function ($details, $class) {
+            return [$class => $details['name']];
+        })->all();
+    }
+
+    public static function getUrlForController(?string $controller): ?string
+    {
+        if (! $controller) {
+            return null;
+        }
+
+        if (isset(self::CONTROLLERS[$controller])) {
+            return url(self::CONTROLLERS[$controller]['endpoint']);
+        }
+
+        // Support short class name match
+        foreach (self::CONTROLLERS as $class => $details) {
+            if (class_basename($class) === class_basename($controller)) {
+                return url($details['endpoint']);
+            }
+        }
+
+        return null;
+    }
+
+    public function getEndpointUrlAttribute(): ?string
+    {
+        return static::getUrlForController($this->api_controller);
+    }
 
     protected $casts = [
         'is_active' => 'boolean',
@@ -36,7 +84,7 @@ class ApiKey extends Model
     {
         static::creating(function (ApiKey $apiKey) {
             if (empty($apiKey->key)) {
-                $apiKey->key = 'cemh_live_' . Str::random(40);
+                $apiKey->key = 'apgcl_mmlsay_live_' . Str::random(40);
             }
             if (auth()->check()) {
                 $apiKey->created_by ??= auth()->id();
@@ -53,7 +101,7 @@ class ApiKey extends Model
 
     public static function generateKey(): string
     {
-        return 'cemh_live_' . Str::random(40);
+        return 'apgcl_mmlsay_live_' . Str::random(40);
     }
 
     public function isValid(): bool

@@ -54,12 +54,18 @@ class EmployeeResource extends Resource
     {
         $updateFullName = function (Get $get, Set $set): void {
             $parts = array_filter([$get('first_Name'), $get('middle_Name'), $get('last_Name')], fn ($part) => filled($part));
-            $set('full_Name', implode(' ', $parts));
+            $fullName = implode(' ', $parts);
+            $set('full_Name', $fullName);
+
+            if (! filled($get('ac_name')) || $get('ac_name') === $get('full_Name')) {
+                $set('ac_name', $fullName);
+            }
         };
 
         return $schema
             ->components([
                 TextInput::make('emp_id')
+                    ->label('Employee ID')
                     ->required(),
                 TextInput::make('full_Name')
                     ->label('Full Name')
@@ -97,6 +103,7 @@ class EmployeeResource extends Resource
                     ])
                     ->required(),
                 TextInput::make('pan')
+                    ->label('PAN No.')
                     ->maxLength(10)
                     ->required(),
                 Select::make('gender')
@@ -107,6 +114,7 @@ class EmployeeResource extends Resource
                     ])
                     ->required(),
                 DatePicker::make('dob')
+                    ->label('Date of Birth')
                     ->required(),
                 Select::make('designation')
                     ->options([
@@ -148,10 +156,13 @@ class EmployeeResource extends Resource
                 TextInput::make('grade_pay')
                     ->nullable(),
                 DatePicker::make('date_of_joining')
+                    ->label('Date of Joining')
                     ->required(),
                 DatePicker::make('dor')
+                    ->label('Date of Retirement')
                     ->required(),
                 TextInput::make('gpf_nps')
+                    ->label('GPF/NPS')
                     ->nullable(),
                 TextInput::make('email')
                     ->label('Email address')
@@ -181,16 +192,21 @@ class EmployeeResource extends Resource
                     ])
                     ->required(),
                 TextInput::make('ac_number')
+                    ->label('Account Number')
                     ->required(),
                 Select::make('ac_type')
+                    ->label('Account Type')
                     ->options([
                         'Savings' => 'Savings',
                         'Salary' => 'Salary',
                     ])
                     ->required(),
                 TextInput::make('ac_name')
+                    ->label('Account Name')
+                    ->default(fn (Get $get) => $get('full_Name'))
                     ->required(),
                 Select::make('ac_bank')
+                    ->label('Account Bank')
                     ->options([
                         'SBI' => 'State Bank of India',
                         'BOB' => 'Bank of Baroda',
@@ -219,8 +235,10 @@ class EmployeeResource extends Resource
                     ])
                     ->required(),
                 TextInput::make('ac_branch')
+                    ->label('Account Branch')
                     ->required(),
                 TextInput::make('ac_ifsc')
+                    ->label('Account IFSC')
                     ->required(),
             ]);
     }
@@ -235,31 +253,42 @@ class EmployeeResource extends Resource
                 TextColumn::make('full_Name')
                     ->searchable(),
                 TextColumn::make('first_Name')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
                 TextColumn::make('middle_Name')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->placeholder('N/A')
                     ->searchable(),
                 TextColumn::make('last_Name')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
                 TextColumn::make('type')
                     ->searchable(),
                 TextColumn::make('mobile')
                     ->searchable(),
                 TextColumn::make('employee_code')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
                 TextColumn::make('pan')
                     ->searchable(),
                 TextColumn::make('gender')
                     ->searchable(),
                 TextColumn::make('dob')
+                    ->placeholder('N/A')
+                    ->date()
                     ->searchable(),
                 TextColumn::make('designation')
                     ->searchable(),
                 TextColumn::make('grade')
                     ->searchable(),
                 TextColumn::make('pay_band')
-                    ->searchable(),
+                    ->placeholder('N/A')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('grade_pay')
-                    ->searchable(),
+                    ->placeholder('N/A')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('date_of_joining')
                     ->date()
                     ->sortable(),
@@ -267,14 +296,22 @@ class EmployeeResource extends Resource
                     ->date()
                     ->sortable(),
                 TextColumn::make('gpf_nps')
-                    ->searchable(),
+                    ->placeholder('N/A')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('email')
                     ->label('Email address')
-                    ->searchable(),
+                    ->placeholder('N/A')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('present_address')
-                    ->searchable(),
+                    ->wrap()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('permanent_address')
-                    ->searchable(),
+                    ->wrap()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('pincode')
                     ->searchable(),
                 TextColumn::make('district')
@@ -286,6 +323,7 @@ class EmployeeResource extends Resource
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('active')
+                    ->formatStateUsing(fn($state) => $state == 'true' ? 'Active' : 'Inactive')
                     ->searchable(),
                 TextColumn::make('ac_number')
                     ->searchable(),

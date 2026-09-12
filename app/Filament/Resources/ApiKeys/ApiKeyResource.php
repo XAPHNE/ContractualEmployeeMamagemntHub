@@ -11,12 +11,15 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
@@ -51,9 +54,29 @@ class ApiKeyResource extends Resource
                     ->schema([
                         TextInput::make('name')
                             ->label('Client / Application Name')
-                            ->placeholder('e.g. E-Governance')
+                            ->placeholder('e.g. MMLSAY Portal / E-Governance')
                             ->required()
                             ->maxLength(255)
+                            ->columnSpanFull(),
+                        Select::make('api_controller')
+                            ->label('API Controller / Service')
+                            ->options(ApiKey::getControllerOptions())
+                            ->placeholder('Select an API Controller...')
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(function (Set $set, ?string $state) {
+                                $set('api_url', ApiKey::getUrlForController($state));
+                            })
+                            ->columnSpanFull(),
+                        TextInput::make('api_url')
+                            ->label('API Endpoint URL')
+                            ->placeholder('Select an API controller to view its endpoint URL')
+                            ->default(fn (Get $get, ?ApiKey $record) => ApiKey::getUrlForController($get('api_controller') ?? $record?->api_controller))
+                            ->formatStateUsing(fn ($state, Get $get, ?ApiKey $record) => $state ?: ApiKey::getUrlForController($get('api_controller') ?? $record?->api_controller))
+                            ->readOnly()
+                            ->copyable()
+                            ->dehydrated(false)
+                            ->helperText('Copy this endpoint URL to share with the integration team.')
                             ->columnSpanFull(),
                         TextInput::make('key')
                             ->label('API Secret Key')
@@ -66,7 +89,7 @@ class ApiKeyResource extends Resource
                         Textarea::make('allowed_ips')
                             ->label('Whitelisted IP Addresses')
                             ->placeholder('e.g. 192.168.1.100, 10.0.0.45')
-                            ->helperText('Comma-separated list of SAP server IP addresses. Leave empty to allow any IP address.')
+                            ->helperText('Comma-separated list of server IP addresses. Leave empty to allow any IP address.')
                             ->columnSpanFull(),
                         TextInput::make('rate_limit_per_minute')
                             ->label('Rate Limit (Requests / Min)')
@@ -97,6 +120,21 @@ class ApiKeyResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),
+                TextColumn::make('api_controller')
+                    ->label('API Service')
+                    ->formatStateUsing(function (?string $state): string {
+                        if (! $state) {
+                            return 'All / Generic';
+                        }
+                        $options = ApiKey::getControllerOptions();
+
+                        return $options[$state] ?? class_basename($state);
+                    })
+                    ->description(fn (ApiKey $record): ?string => $record->endpoint_url)
+                    ->copyable()
+                    ->copyableState(fn (ApiKey $record): ?string => $record->endpoint_url)
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('key')
                     ->label('API Key')
                     ->copyable()
