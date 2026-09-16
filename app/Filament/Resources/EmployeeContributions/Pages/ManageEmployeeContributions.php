@@ -5,6 +5,8 @@ namespace App\Filament\Resources\EmployeeContributions\Pages;
 use App\Filament\Resources\EmployeeContributions\EmployeeContributionResource;
 use App\Models\Employee;
 use App\Models\EmployeeContribution;
+use App\Models\Setting;
+use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\CheckboxList;
@@ -16,6 +18,7 @@ use Filament\Resources\Pages\ManageRecords;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 class ManageEmployeeContributions extends ManageRecords
@@ -71,6 +74,30 @@ class ManageEmployeeContributions extends ManageRecords
                             ])
                             ->default(now()->month)
                             ->live()
+                            ->rules([
+                                fn (Get $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
+                                    $finYear = $get('fin_year');
+                                    $month = (int) $value;
+
+                                    if (! $finYear || ! $month) {
+                                        return;
+                                    }
+
+                                    $user = auth()->user();
+                                    $ddoId = $user?->ddo?->id;
+
+                                    $missed = ManageEmployeeContributions::getMissedPreviousMonthEmployees($finYear, $month, $ddoId);
+
+                                    if ($missed->isNotEmpty()) {
+                                        $prev = ManageEmployeeContributions::getPreviousMonthAndFinYear($finYear, $month);
+                                        $count = $missed->count();
+                                        $names = $missed->take(3)->pluck('full_Name')->implode(', ');
+                                        $more = $count > 3 ? ' and '.($count - 3).' more' : '';
+
+                                        $fail("Cannot contribute for Month {$month}: {$count} active employee(s) ({$names}{$more}) have not had their Month {$prev['month']} ({$prev['fin_year']}) contributions deposited. Please clear Month {$prev['month']} backlog first.");
+                                    }
+                                },
+                            ])
                             ->required(),
 
                         TextInput::make('contribution_amount')
@@ -121,7 +148,13 @@ class ManageEmployeeContributions extends ManageRecords
                                 })
                                 ->all();
                         })
-                        ->helperText('Only active employees who have not already contributed for this or later months in the selected financial year are displayed.')
+                        ->helperText(function () {
+                            $allowSkip = filter_var(Setting::get('allow_skipping_contribution_months', false), FILTER_VALIDATE_BOOLEAN);
+
+                            return $allowSkip
+                                ? 'Only active employees who have not already contributed for this or later months in the selected financial year are displayed.'
+                                : 'Sequential contribution enforced: DDO must ensure all active employees have previous month contributions recorded before progressing to the next month.';
+                        })
                         ->required(),
                 ])
                 ->action(function (array $data): void {
@@ -135,6 +168,36 @@ class ManageEmployeeContributions extends ManageRecords
                         Notification::make()
                             ->title('No Employees Selected')
                             ->warning()
+                            ->send();
+
+                        return;
+                    }
+
+                    $user = auth()->user();
+                    $ddoId = $user?->ddo?->id;
+
+                    $targetDdoIds = $ddoId
+                        ? collect([$ddoId])
+                        : Employee::whereIn('id', $employeeIds)->pluck('ddo_id')->unique()->filter();
+
+                    $missedEmployees = collect();
+                    foreach ($targetDdoIds as $dId) {
+                        $missedEmployees = $missedEmployees->merge(
+                            static::getMissedPreviousMonthEmployees($finYear, $month, (int) $dId)
+                        );
+                    }
+
+                    if ($missedEmployees->isNotEmpty()) {
+                        $prev = static::getPreviousMonthAndFinYear($finYear, $month);
+                        $count = $missedEmployees->count();
+                        $names = $missedEmployees->take(3)->pluck('full_Name')->implode(', ');
+                        $more = $count > 3 ? ' and '.($count - 3).' more' : '';
+
+                        Notification::make()
+                            ->title('Previous Month Contribution Incomplete')
+                            ->body("Cannot record Month {$month} contributions: {$count} active employee(s) ({$names}{$more}) have not had their Month {$prev['month']} ({$prev['fin_year']}) contributions deposited. Please clear all pending Month {$prev['month']} contributions first.")
+                            ->danger()
+                            ->persistent()
                             ->send();
 
                         return;
@@ -198,5 +261,81 @@ class ManageEmployeeContributions extends ManageRecords
                 }),
             CreateAction::make(),
         ];
+    }
+
+    /**
+     * Resolve the previous month and financial year:
+     * - Month 4 (April) checks Month 3 (March) of previous financial year.
+     * - Month 1 (January) checks Month 12 (December) of the same financial year.
+     * - Any other month checks (month - 1) of the same financial year.
+     *
+     * @return array{fin_year: string, month: int}
+     */
+    public static function getPreviousMonthAndFinYear(string $finYear, int $month): array
+    {
+        if ($month === 4) {
+            $startYear = (int) explode('-', $finYear)[0];
+            $prevStart = $startYear - 1;
+            $prevFinYear = $prevStart.'-'.substr((string) ($prevStart + 1), -2);
+
+            return [
+                'fin_year' => $prevFinYear,
+                'month' => 3,
+            ];
+        }
+
+        if ($month === 1) {
+            return [
+                'fin_year' => $finYear,
+                'month' => 12,
+            ];
+        }
+
+        return [
+            'fin_year' => $finYear,
+            'month' => $month - 1,
+        ];
+    }
+
+    /**
+     * Get the calendar start date of the selected contribution month.
+     * Months 4-12 are in the first year of the financial year.
+     * Months 1-3 are in the second year of the financial year.
+     */
+    public static function getMonthStartDate(string $finYear, int $month): Carbon
+    {
+        $startYear = (int) explode('-', $finYear)[0];
+        $calendarYear = ($month >= 4 && $month <= 12) ? $startYear : $startYear + 1;
+
+        return Carbon::createFromDate($calendarYear, $month, 1)->startOfDay();
+    }
+
+    /**
+     * Retrieve active employees of the DDO who missed contributing in the previous month.
+     * Employees whose date_of_joining falls in or after the current month are excluded.
+     * Returns an empty collection if skipping months is allowed in System Settings.
+     */
+    public static function getMissedPreviousMonthEmployees(string $finYear, int $month, ?int $ddoId = null): Collection
+    {
+        if (filter_var(Setting::get('allow_skipping_contribution_months', false), FILTER_VALIDATE_BOOLEAN)) {
+            return new Collection;
+        }
+
+        $prev = static::getPreviousMonthAndFinYear($finYear, $month);
+        $monthStart = static::getMonthStartDate($finYear, $month);
+
+        return Employee::query()
+            ->active()
+            ->when($ddoId, fn ($q) => $q->where('ddo_id', $ddoId))
+            ->where(function ($q) use ($monthStart) {
+                $q->whereNull('date_of_joining')
+                    ->orWhere('date_of_joining', '<', $monthStart);
+            })
+            ->whereDoesntHave('contributions', function ($q) use ($prev) {
+                $q->where('fin_year', $prev['fin_year'])
+                    ->where('month', $prev['month']);
+            })
+            ->orderBy('full_Name')
+            ->get();
     }
 }

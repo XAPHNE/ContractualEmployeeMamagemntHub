@@ -27,4 +27,15 @@ class SystemSettingsTest extends TestCase
         $panel = Filament::getPanel('admin');
         $this->assertEquals('Custom System Setting Name', $panel->getBrandName());
     }
+
+    public function test_allow_skipping_contribution_months_setting_defaults_false_and_can_be_toggled(): void
+    {
+        $this->assertFalse((bool) Setting::get('allow_skipping_contribution_months', false));
+
+        Setting::set('allow_skipping_contribution_months', true);
+        $this->assertTrue((bool) Setting::get('allow_skipping_contribution_months', false));
+
+        Setting::set('allow_skipping_contribution_months', false);
+        $this->assertFalse((bool) Setting::get('allow_skipping_contribution_months', false));
+    }
 }

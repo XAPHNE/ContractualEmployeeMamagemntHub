@@ -27,6 +27,7 @@ class SettingSeeder extends Seeder
             'max_login_attempts' => 5,
             'login_lockout_hours' => 1,
             'max_2fa_resend_attempts' => 3,
+            'allow_skipping_contribution_months' => false,
         ];
 
         foreach ($defaults as $key => $value) {

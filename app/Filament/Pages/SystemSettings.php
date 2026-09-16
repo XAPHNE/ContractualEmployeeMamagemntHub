@@ -55,6 +55,8 @@ class SystemSettings extends Page
             'max_login_attempts' => (int) Setting::get('max_login_attempts', 5),
             'login_lockout_hours' => (int) Setting::get('login_lockout_hours', 1),
             'max_2fa_resend_attempts' => (int) Setting::get('max_2fa_resend_attempts', 3),
+
+            'allow_skipping_contribution_months' => (bool) Setting::get('allow_skipping_contribution_months', false),
         ]);
     }
 
@@ -172,6 +174,19 @@ class SystemSettings extends Page
                                             ->required(),
                                     ])
                                     ->columns(2),
+                            ]),
+
+                        Tab::make('Contributions')
+                            ->icon(Heroicon::OutlinedBanknotes)
+                            ->schema([
+                                Section::make('Contribution Compliance & Rules')
+                                    ->description('Configure sequential month validation and audit requirements for DDO bulk submissions.')
+                                    ->schema([
+                                        Toggle::make('allow_skipping_contribution_months')
+                                            ->label('Allow Skipping Contribution Months')
+                                            ->helperText('When enabled, DDOs can record contributions for a month even if previous months are missing for some active employees. When disabled (default), DDOs must contribute chronologically for all active employees without skipping months.')
+                                            ->default(false),
+                                    ]),
                             ]),
                     ]),
             ]);
