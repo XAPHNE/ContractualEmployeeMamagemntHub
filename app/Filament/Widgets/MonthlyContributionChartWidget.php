@@ -10,13 +10,15 @@ class MonthlyContributionChartWidget extends ChartWidget
 {
     use HasWidgetShield;
 
-    protected ?string $heading = 'Monthly Employee Contributions & Active Staff';
+    protected ?string $heading = 'Monthly Employee Contributions & Active Employees';
 
     protected ?string $description = 'Monthly active contributing employees and total deposited contribution amount';
 
     protected static ?int $sort = 2;
 
     protected int|string|array $columnSpan = 'full';
+
+    protected ?string $maxHeight = 'clamp(280px, 32vh, 420px)';
 
     public ?string $filter = null;
 
@@ -119,19 +121,25 @@ class MonthlyContributionChartWidget extends ChartWidget
                     'label' => 'Active Employees',
                     'data' => $activeEmployeesData,
                     'yAxisID' => 'y',
-                    'backgroundColor' => 'rgba(59, 130, 246, 0.8)',
+                    'backgroundColor' => 'rgba(59, 130, 246, 0.85)',
                     'borderColor' => '#3b82f6',
                     'borderWidth' => 1,
-                    'borderRadius' => 4,
+                    'borderRadius' => 3,
+                    'minBarLength' => 6,
+                    'barPercentage' => 0.9,
+                    'categoryPercentage' => 0.85,
                 ],
                 [
                     'label' => 'Total Contribution (₹)',
                     'data' => $contributionsData,
                     'yAxisID' => 'y1',
-                    'backgroundColor' => 'rgba(16, 185, 129, 0.8)',
+                    'backgroundColor' => 'rgba(16, 185, 129, 0.85)',
                     'borderColor' => '#10b981',
                     'borderWidth' => 1,
-                    'borderRadius' => 4,
+                    'borderRadius' => 3,
+                    'minBarLength' => 6,
+                    'barPercentage' => 0.9,
+                    'categoryPercentage' => 0.85,
                 ],
             ],
             'labels' => $labels,
@@ -146,6 +154,7 @@ class MonthlyContributionChartWidget extends ChartWidget
     protected function getOptions(): array
     {
         return [
+            'maintainAspectRatio' => false,
             'plugins' => [
                 'legend' => [
                     'display' => true,
@@ -158,8 +167,7 @@ class MonthlyContributionChartWidget extends ChartWidget
                     'display' => true,
                     'position' => 'left',
                     'title' => [
-                        'display' => true,
-                        'text' => 'Active Employees',
+                        'display' => false,
                     ],
                     'beginAtZero' => true,
                     'ticks' => [
@@ -174,8 +182,7 @@ class MonthlyContributionChartWidget extends ChartWidget
                     'display' => true,
                     'position' => 'right',
                     'title' => [
-                        'display' => true,
-                        'text' => 'Total Contribution (₹)',
+                        'display' => false,
                     ],
                     'beginAtZero' => true,
                     'grid' => [
@@ -185,6 +192,10 @@ class MonthlyContributionChartWidget extends ChartWidget
                 'x' => [
                     'grid' => [
                         'display' => false,
+                    ],
+                    'ticks' => [
+                        'maxRotation' => 0,
+                        'autoSkip' => false,
                     ],
                 ],
             ],
