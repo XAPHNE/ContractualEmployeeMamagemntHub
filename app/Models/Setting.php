@@ -11,9 +11,11 @@ class Setting extends Model
 
     public static function get(string $key, $default = null)
     {
-        $setting = self::where('key', $key)->first();
+        return rescue(function () use ($key, $default) {
+            $setting = self::where('key', $key)->first();
 
-        return $setting ? $setting->value : $default;
+            return $setting ? $setting->value : $default;
+        }, $default, false);
     }
 
     public static function set(string $key, $value): void

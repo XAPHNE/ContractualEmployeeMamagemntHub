@@ -3,6 +3,8 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\EditProfile;
+use App\Filament\Pages\Auth\Login;
+use App\Filament\Pages\Auth\RequestPasswordReset;
 use App\Filament\Widgets\WelcomeWidget;
 use App\Models\Setting;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
@@ -46,8 +48,8 @@ class AdminPanelProvider extends PanelProvider
             ->brandName($getAppName)
             ->id('admin')
             ->path('admin')
-            ->login()
-            ->passwordReset()
+            ->login(Login::class)
+            ->passwordReset(RequestPasswordReset::class)
             ->colors([
                 'primary' => Color::Green,
             ])

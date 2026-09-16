@@ -6,6 +6,7 @@ use App\Models\Setting;
 use BackedEnum;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
@@ -57,6 +58,10 @@ class SystemSettings extends Page
             'max_2fa_resend_attempts' => (int) Setting::get('max_2fa_resend_attempts', 3),
 
             'allow_skipping_contribution_months' => (bool) Setting::get('allow_skipping_contribution_months', false),
+
+            'enable_forgot_password' => (bool) Setting::get('enable_forgot_password', true),
+            'forgot_password_max_attempts' => (int) Setting::get('forgot_password_max_attempts', 3),
+            'forgot_password_throttle_by' => (string) Setting::get('forgot_password_throttle_by', 'email_and_ip'),
         ]);
     }
 
@@ -171,6 +176,34 @@ class SystemSettings extends Page
                                             ->numeric()
                                             ->minValue(1)
                                             ->maxValue(10)
+                                            ->required(),
+                                    ])
+                                    ->columns(2),
+
+                                Section::make('Forgot Password & Throttling Policy')
+                                    ->description('Manage forgot password availability and brute-force rate limiting.')
+                                    ->schema([
+                                        Toggle::make('enable_forgot_password')
+                                            ->label('Enable Forgot Password Option')
+                                            ->helperText('Permit users to request password reset links from the login page and direct URL.')
+                                            ->default(true),
+                                        TextInput::make('forgot_password_max_attempts')
+                                            ->label('Forgot Password Rate Limit (Max Attempts)')
+                                            ->helperText('Maximum number of password reset requests allowed within 60 seconds before throttling.')
+                                            ->numeric()
+                                            ->minValue(1)
+                                            ->maxValue(30)
+                                            ->default(3)
+                                            ->required(),
+                                        Select::make('forgot_password_throttle_by')
+                                            ->label('Rate Limiting Strategy')
+                                            ->helperText('Select the identifier used to track and throttle password reset attempts.')
+                                            ->options([
+                                                'email_and_ip' => 'User Email + Client IP Address',
+                                                'email' => 'User Email Address Only',
+                                                'ip' => 'Client IP Address Only',
+                                            ])
+                                            ->default('email_and_ip')
                                             ->required(),
                                     ])
                                     ->columns(2),
